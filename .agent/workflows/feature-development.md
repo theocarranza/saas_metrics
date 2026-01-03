@@ -15,6 +15,7 @@ This workflow outlines the standard process for developing a feature, using MCP 
   - **Failure**: Notify the user immediately: "GitHub Authentication failed. Please authenticate the GitHub MCP server."
 
 ## 1. Branch Creation & Assignment
+- **Restriction**: Per `.agent/rules/git-style-guide.md`, **NEVER** commit directly to `main` or `develop`. You MUST create a new branch.
 - **Action 1**: Create a new branch for the current changes.
 - **Naming Convention**: `feat/[ISSUE_ID]-description-of-feature`
 - **Action 2**: Assign the GitHub issue to the active developer (yourself or specific user).
