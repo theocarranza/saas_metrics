@@ -5,15 +5,13 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
-- **Financial Modeling Feature**:
-  - Implemented Domain Layer (`lib/features/financial_modeling/domain/`).
-  - Added Value Objects: `SaaSMetrics`, `IncomeStatement`, `CashFlow`, `UnitEconomics`.
-  - Added Aggregate Root: `MonthlyFinancialRecord`.
-  - Added Entity: `FinancialScenario`.
-  - Added Repository Contract: `FinancialRepository`.
-  - Added Use Case Skeleton: `GenerateFinancialProjections`.
-  - Added Comprehensive Unit Tests for all Domain Entities.
-
+- **Financial Modeling**:
+  - Implemented Domain Entities: `SaaSMetrics`, `IncomeStatement`, `CashFlow`, `UnitEconomics`, `MonthlyFinancialRecord`, `FinancialScenario`.
+  - Implemented Core Logic (Math Engine) in `GenerateFinancialProjections` use case.
+  - Added comprehensive Unit Tests (TDD) for all entities and logic engines.
+- **Documentation**:
+  - Added `domain_layer_design.md` to Knowledge Base.
+  - Updated `README.md` with project overview and architecture.
 - **Project Infrastructure**:
   - Initialized Git repository.
   - Defined Agent Rules for Clean Architecture, Git, and Dart styles (`.agent/rules/`).
