@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class KPICard extends StatelessWidget {
   final String title;
@@ -17,9 +16,11 @@ class KPICard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      // M3 defaults handle elevation and shape, but we can override if needed
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -33,9 +34,8 @@ class KPICard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Colors.grey[600],
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -44,10 +44,9 @@ class KPICard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               value,
-              style: GoogleFonts.inter(
-                fontSize: 24,
+              style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: theme.colorScheme.onSurface,
               ),
             ),
           ],

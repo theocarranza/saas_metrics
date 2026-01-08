@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:saas_metrics/features/financial_modeling/domain/entities/financial_scenario.dart';
 
+import 'package:intl/intl.dart';
+
 import '../../presentation/providers/financial_projections_provider.dart';
+import '../../../auth/presentation/pages/login_page.dart';
 import '../widgets/kpi_card.dart';
 import '../widgets/revenue_chart.dart';
 
@@ -20,126 +23,153 @@ class DashboardPage extends ConsumerWidget {
           'SaaS Financial Dashboard',
           style: GoogleFonts.inter(fontWeight: FontWeight.bold),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sign Out',
+            onPressed: () {
+              // Simple navigation-based logout for demo purposes
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+              );
+            },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _runSimulation(ref),
         icon: const Icon(Icons.play_arrow),
         label: const Text('Run Simulation'),
       ),
-      body: projectionsAsync.when(
-        data: (records) {
-          if (records.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.analytics_outlined,
-                    size: 64,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No projections generated yet.',
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
-                      color: Colors.grey[700],
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 600),
+        child: projectionsAsync.when(
+          data: (records) {
+            if (records.isEmpty) {
+              return Center(
+                key: const ValueKey('empty_state'),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.analytics_outlined,
+                      size: 64,
+                      color: Colors.grey,
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () => _runSimulation(ref),
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('Generate Projections'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
+                    const SizedBox(height: 16),
+                    Text(
+                      'No projections generated yet.',
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        color: Colors.grey[700],
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Simulates a SaaS growth scenario (Demo).',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () => _runSimulation(ref),
+                      icon: const Icon(Icons.play_arrow),
+                      label: const Text('Generate Projections'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final lastMonth = records.last;
+            final currencyFormat =
+                NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+
+            return SingleChildScrollView(
+              key: const ValueKey('content'),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Key Metrics (Month 12)',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: KPICard(
+                          title: 'Total MRR',
+                          value: currencyFormat
+                              .format(lastMonth.saasMetrics.totalMrr),
+                          icon: Icons.attach_money,
+                          color: Colors.green,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: KPICard(
+                          title: 'Active Users',
+                          value: '${lastMonth.saasMetrics.activeCustomers}',
+                          icon: Icons.people,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: KPICard(
+                          title: 'Gross Profit',
+                          value: currencyFormat
+                              .format(lastMonth.incomeStatement.grossProfit),
+                          icon: Icons.trending_up,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: KPICard(
+                          title: 'Cash Balance',
+                          value: currencyFormat
+                              .format(lastMonth.cashFlow.endingBalance),
+                          icon: Icons.account_balance_wallet,
+                          color: Colors.purple,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Revenue Trend',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(height: 300, child: RevenueChart(records: records)),
                 ],
               ),
             );
-          }
-
-          final lastMonth = records.last;
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Key Metrics (Month 12)',
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: KPICard(
-                        title: 'Total MRR',
-                        value:
-                            '\$${lastMonth.saasMetrics.totalMrr.toStringAsFixed(0)}',
-                        icon: Icons.attach_money,
-                        color: Colors.green,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: KPICard(
-                        title: 'Active Users',
-                        value: '${lastMonth.saasMetrics.activeCustomers}',
-                        icon: Icons.people,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: KPICard(
-                        title: 'Gross Profit',
-                        value:
-                            '\$${lastMonth.incomeStatement.grossProfit.toStringAsFixed(0)}',
-                        icon: Icons.trending_up,
-                        color: Colors.orange,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: KPICard(
-                        title: 'Cash Balance',
-                        value:
-                            '\$${lastMonth.cashFlow.endingBalance.toStringAsFixed(0)}',
-                        icon: Icons.account_balance_wallet,
-                        color: Colors.purple,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Revenue Trend',
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(height: 300, child: RevenueChart(records: records)),
-              ],
-            ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => Center(child: Text('Error: $err')),
+        ),
       ),
     );
   }

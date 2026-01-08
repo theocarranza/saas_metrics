@@ -61,7 +61,7 @@ class RevenueChart extends StatelessWidget {
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blueAccent.withOpacity(0.1),
+              color: Colors.blueAccent.withValues(alpha: 0.1),
             ),
           ),
         ],

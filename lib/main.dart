@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'features/financial_modeling/presentation/pages/dashboard_page.dart';
+import 'package:saas_metrics/features/onboarding/presentation/pages/onboarding_page.dart';
 
 void main() {
   runApp(const ProviderScope(child: MainApp()));
@@ -14,8 +13,11 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SaaS Metrics',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      home: const DashboardPage(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
+        useMaterial3: true,
+      ),
+      home: const OnboardingPage(),
     );
   }
 }
