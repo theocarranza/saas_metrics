@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:saas_metrics/core/router/app_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:saas_metrics/features/onboarding/presentation/providers/onboarding_provider.dart';
 
-class OnboardingPage extends StatefulWidget {
+class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
 
   @override
-  State<OnboardingPage> createState() => _OnboardingPageState();
+  ConsumerState<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingPageState extends State<OnboardingPage> {
+class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -72,7 +74,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
         children: [
           if (!isLastPage)
             TextButton(
-              onPressed: () => context.go(AppRoutes.login),
+              onPressed: () {
+                ref.read(onboardingProvider.notifier).completeOnboarding();
+                context.go(AppRoutes.login);
+              },
               child: Text(
                 'Skip',
                 style: theme.textTheme.labelLarge?.copyWith(
@@ -86,6 +91,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           FilledButton(
             onPressed: () {
               if (isLastPage) {
+                ref.read(onboardingProvider.notifier).completeOnboarding();
                 context.go(AppRoutes.login);
               } else {
                 _pageController.nextPage(
