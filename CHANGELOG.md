@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
   - Implemented `FinancialProjectionsNotifier` using Riverpod 2.0 (Generator).
   - Added robust Automated Widget and Provider Tests.
   - **UI Refinements**: Added Floating Action Button and Center Button for simulation control.
+  - **M3 Compliance**: Fixed `OnboardingPage` indicators to use `colorScheme` tokens.
 - **Documentation**:
   - Added `domain_layer_design.md` to Knowledge Base.
   - Updated `README.md` with project overview and architecture.

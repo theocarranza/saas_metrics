@@ -118,6 +118,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Widget _buildIndicators() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
@@ -128,8 +129,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
           height: 8,
           decoration: BoxDecoration(
             color: _currentPage == index
-                ? Theme.of(context).primaryColor
-                : Colors.grey[300],
+                ? colorScheme.primary
+                : colorScheme.outlineVariant,
             borderRadius: BorderRadius.circular(4),
           ),
         ),
