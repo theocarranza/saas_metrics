@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:saas_metrics/features/financial_modeling/presentation/pages/dashboard_page.dart';
 import 'package:saas_metrics/features/onboarding/presentation/pages/onboarding_page.dart';
 
-void main() {
+import 'package:saas_metrics/features/auth/presentation/providers/auth_provider.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const ProviderScope(child: MainApp()));
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+
     return MaterialApp(
       title: 'SaaS Metrics',
       debugShowCheckedModeBanner: false,
@@ -30,7 +37,17 @@ class MainApp extends StatelessWidget {
           backgroundColor: Colors.transparent,
         ),
       ),
-      home: const OnboardingPage(),
+      home: authState.when(
+        data: (token) {
+          if (token != null && token.isValid) {
+            return const DashboardPage();
+          }
+          return const OnboardingPage();
+        },
+        loading: () =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
+        error: (err, stack) => const OnboardingPage(),
+      ),
     );
   }
 }

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:saas_metrics/features/auth/presentation/pages/sign_up_page.dart';
-import 'package:saas_metrics/features/financial_modeling/presentation/pages/dashboard_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:saas_metrics/features/auth/presentation/providers/auth_provider.dart';
 
-class LoginPage extends StatefulWidget {
+
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -35,26 +37,28 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      final prefs = await SharedPreferences.getInstance();
       if (_rememberMe) {
+        final prefs = await SharedPreferences.getInstance();
         await prefs.setString('saved_email', _emailController.text);
       } else {
+        final prefs = await SharedPreferences.getInstance();
         await prefs.remove('saved_email');
       }
 
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => const DashboardPage(),
-          ),
-        );
-      }
+      await ref
+          .read(authProvider.notifier)
+          .login(_emailController.text, _passwordController.text);
+
+      // Navigation is now handled by the listener in Main,
+      // but we can leave this for redundancy or remove it if Main handles it purely reactively.
+      // For now, let's let Main handle the redirection based on state change.
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final authState = ref.watch(authProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -136,19 +140,21 @@ class _LoginPageState extends State<LoginPage> {
                       controlAffinity: ListTileControlAffinity.leading,
                     ),
                     const SizedBox(height: 24),
-                    FilledButton(
-                      onPressed: _handleLogin,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: Text(
-                        'Sign In',
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onPrimary,
-                        ),
-                      ),
-                    ),
+                    authState.isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : FilledButton(
+                            onPressed: _handleLogin,
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            child: Text(
+                              'Sign In',
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: () {
@@ -164,6 +170,15 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
+                    if (authState.hasError)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Text(
+                          'Login failed. Please try again.',
+                          style: TextStyle(color: theme.colorScheme.error),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                   ],
                 ),
               ),

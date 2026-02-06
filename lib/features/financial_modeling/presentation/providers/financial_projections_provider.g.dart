@@ -38,7 +38,7 @@ final class FinancialProjectionsNotifierProvider
 }
 
 String _$financialProjectionsNotifierHash() =>
-    r'44e55c25883c949c5dbee502036d38b5235769e0';
+    r'aec472674cea7603ee2559eaeee17ab6a34e0829';
 
 abstract class _$FinancialProjectionsNotifier
     extends $AsyncNotifier<List<MonthlyFinancialRecord>> {

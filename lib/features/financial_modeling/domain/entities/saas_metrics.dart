@@ -52,4 +52,32 @@ class SaaSMetrics extends Equatable {
     churnRate,
     arpa,
   ];
+
+  Map<String, dynamic> toMap() {
+    return {
+      'newMrr': newMrr,
+      'expansionMrr': expansionMrr,
+      'contractionMrr': contractionMrr,
+      'churnMrr': churnMrr,
+      'totalMrr': totalMrr,
+      'arr': arr,
+      'activeCustomers': activeCustomers,
+      'churnRate': churnRate,
+      'arpa': arpa,
+    };
+  }
+
+  factory SaaSMetrics.fromMap(Map<String, dynamic> map) {
+    return SaaSMetrics(
+      newMrr: map['newMrr']?.toDouble() ?? 0.0,
+      expansionMrr: map['expansionMrr']?.toDouble() ?? 0.0,
+      contractionMrr: map['contractionMrr']?.toDouble() ?? 0.0,
+      churnMrr: map['churnMrr']?.toDouble() ?? 0.0,
+      totalMrr: map['totalMrr']?.toDouble() ?? 0.0,
+      arr: map['arr']?.toDouble() ?? 0.0,
+      activeCustomers: map['activeCustomers'] as int? ?? 0,
+      churnRate: map['churnRate']?.toDouble() ?? 0.0,
+      arpa: map['arpa']?.toDouble() ?? 0.0,
+    );
+  }
 }

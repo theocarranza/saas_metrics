@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:saas_metrics/features/financial_modeling/domain/entities/financial_scenario.dart';
+import 'package:saas_metrics/features/financial_modeling/domain/entities/monthly_financial_record.dart';
 
 import 'package:intl/intl.dart';
 
@@ -11,11 +12,19 @@ import '../../../auth/presentation/pages/login_page.dart';
 import '../widgets/kpi_card.dart';
 import '../widgets/revenue_chart.dart';
 
-class DashboardPage extends ConsumerWidget {
+class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends ConsumerState<DashboardPage> {
+  ChartTimeframe _selectedTimeframe = ChartTimeframe.month;
+  MonthlyFinancialRecord? _selectedRecord;
+
+  @override
+  Widget build(BuildContext context) {
     final projectionsAsync = ref.watch(financialProjectionsProvider);
 
     return AdaptiveScaffold(
@@ -23,7 +32,7 @@ class DashboardPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'SaaS Financial Dashboard',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
@@ -74,7 +83,7 @@ class DashboardPage extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Text(
                     'No projections generated yet.',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 18,
                       color: Colors.grey[700],
                     ),
@@ -82,7 +91,7 @@ class DashboardPage extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Simulates a SaaS growth scenario (Demo).',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[500],
                     ),
@@ -104,35 +113,45 @@ class DashboardPage extends ConsumerWidget {
             );
           }
 
-          final lastMonth = records.last;
+          // Find the record for the current month (or closest available)
+          final now = DateTime.now();
+          final currentRecord =
+              _selectedRecord ??
+              records.firstWhere(
+                (r) => r.date.year == now.year && r.date.month == now.month,
+                orElse: () => records.last,
+              );
+
           final currencyFormat = NumberFormat.currency(
             locale: 'pt_BR',
             symbol: 'R\$',
           );
+          
+          final monthName = DateFormat('MMMM yyyy').format(currentRecord.date);
 
           // Prepare KPI data
           final kpis = [
             (
               'Total MRR',
-              currencyFormat.format(lastMonth.saasMetrics.totalMrr),
+              currencyFormat.format(currentRecord.saasMetrics.totalMrr),
               Icons.attach_money,
               Colors.green,
             ),
             (
               'Active Users',
-              '${lastMonth.saasMetrics.activeCustomers}',
+              '${currentRecord.saasMetrics.activeCustomers}',
               Icons.people,
               Colors.blue,
             ),
             (
               'Gross Profit',
-              currencyFormat.format(lastMonth.incomeStatement.grossProfit),
+              currencyFormat.format(currentRecord.incomeStatement.grossProfit),
               Icons.trending_up,
               Colors.orange,
             ),
             (
               'Cash Balance',
-              currencyFormat.format(lastMonth.cashFlow.endingBalance),
+              currencyFormat.format(currentRecord.cashFlow.endingBalance),
               Icons.account_balance_wallet,
               Colors.purple,
             ),
@@ -146,8 +165,8 @@ class DashboardPage extends ConsumerWidget {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     Text(
-                      'Key Metrics (Month 12)',
-                      style: GoogleFonts.inter(
+                      'Key Metrics ($monthName)',
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),
@@ -161,7 +180,8 @@ class DashboardPage extends ConsumerWidget {
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 400,
-                    mainAxisExtent: 180, // Increased height for KPI cards
+                    mainAxisExtent:
+                        220, // Increased height for KPI cards to prevent overflow
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
                   ),
@@ -181,12 +201,38 @@ class DashboardPage extends ConsumerWidget {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     const SizedBox(height: 32),
-                    Text(
-                      'Revenue Trend',
-                      style: GoogleFonts.inter(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Revenue Trend',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SegmentedButton<ChartTimeframe>(
+                          segments: const [
+                            ButtonSegment(
+                              value: ChartTimeframe.month,
+                              label: Text('Month'),
+                              icon: Icon(Icons.calendar_view_month),
+                            ),
+                            ButtonSegment(
+                              value: ChartTimeframe.year,
+                              label: Text('Year'),
+                              icon: Icon(Icons.calendar_today),
+                            ),
+                          ],
+                          selected: {_selectedTimeframe},
+                          onSelectionChanged:
+                              (Set<ChartTimeframe> newSelection) {
+                                setState(() {
+                                  _selectedTimeframe = newSelection.first;
+                                });
+                              },
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     Card(
@@ -202,7 +248,16 @@ class DashboardPage extends ConsumerWidget {
                         padding: const EdgeInsets.all(24.0),
                         child: SizedBox(
                           height: 300,
-                          child: RevenueChart(records: records),
+                          child: RevenueChart(
+                            records: records,
+                            timeframe: _selectedTimeframe,
+                            focusedRecord: currentRecord,
+                            onRecordSelected: (record) {
+                              setState(() {
+                                _selectedRecord = record;
+                              });
+                            },
+                          ),
                         ),
                       ),
                     ),
