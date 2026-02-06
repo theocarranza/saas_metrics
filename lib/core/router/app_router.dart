@@ -8,6 +8,7 @@ import 'package:saas_metrics/features/auth/presentation/pages/sign_up_page.dart'
 import 'package:saas_metrics/features/auth/presentation/providers/auth_provider.dart';
 import 'package:saas_metrics/features/financial_modeling/presentation/pages/dashboard_page.dart';
 import 'package:saas_metrics/features/onboarding/presentation/pages/onboarding_page.dart';
+import 'package:saas_metrics/features/onboarding/presentation/providers/onboarding_provider.dart';
 
 part 'app_router.g.dart';
 
@@ -22,15 +23,22 @@ abstract class AppRoutes {
 /// Provider for a listenable that notifies the router of auth state changes.
 class RouterListenable extends ChangeNotifier {
   RouterListenable(Ref ref) {
-    _subscription = ref.listen(authProvider, (previous, next) {
+    _authSubscription = ref.listen(authProvider, (previous, next) {
+      notifyListeners();
+    });
+    _onboardingSubscription = ref.listen(onboardingProvider, (previous, next) {
       notifyListeners();
     });
   }
 
-  late final ProviderSubscription _subscription;
+  late final ProviderSubscription _authSubscription;
+  late final ProviderSubscription _onboardingSubscription;
 
-  void disposeSubscription() {
-    _subscription.close();
+  @override
+  void dispose() {
+    _authSubscription.close();
+    _onboardingSubscription.close();
+    super.dispose();
   }
 }
 
@@ -38,31 +46,51 @@ class RouterListenable extends ChangeNotifier {
 @riverpod
 GoRouter appRouter(Ref ref) {
   final authState = ref.watch(authProvider);
+  final onboardingState = ref.watch(onboardingProvider);
   final listenable = RouterListenable(ref);
-  ref.onDispose(listenable.disposeSubscription);
+  ref.onDispose(listenable.dispose);
 
   return GoRouter(
     initialLocation: AppRoutes.login,
     refreshListenable: listenable,
     debugLogDiagnostics: true,
     redirect: (context, state) {
+      if (authState.isLoading || onboardingState.isLoading) {
+        return null;
+      }
+
       final isAuthenticated =
-          authState.whenOrNull(
-            data: (token) => token != null && token.isValid,
-          ) ??
-          false;
+          authState.value != null && authState.value!.isValid;
+
+      final hasSeenOnboarding = onboardingState.value ?? false;
 
       final isAuthRoute =
           state.matchedLocation == AppRoutes.login ||
           state.matchedLocation == AppRoutes.signUp ||
           state.matchedLocation == AppRoutes.onboarding;
 
-      // Redirect unauthenticated users trying to access protected routes
-      if (!isAuthenticated && !isAuthRoute) {
-        return AppRoutes.login;
+      // 1. Unauthenticated users
+      if (!isAuthenticated) {
+        // Force onboarding on first run
+        if (!hasSeenOnboarding) {
+          if (state.matchedLocation != AppRoutes.onboarding) {
+            return AppRoutes.onboarding;
+          }
+          return null;
+        }
+
+        // If they have seen onboarding but are on the onboarding page, go to login
+        if (state.matchedLocation == AppRoutes.onboarding) {
+          return AppRoutes.login;
+        }
+
+        // Protect internal routes
+        if (!isAuthRoute) {
+          return AppRoutes.login;
+        }
       }
 
-      // Redirect authenticated users away from auth routes to dashboard
+      // 2. Authenticated users
       if (isAuthenticated && isAuthRoute) {
         return AppRoutes.dashboard;
       }
