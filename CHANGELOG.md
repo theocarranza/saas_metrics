@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Auth**: Login page now navigates to Dashboard after successful authentication.
+
 ### Added
 - **Navigation**: 
   - Migrated entire application to `go_router` for declarative navigation.
