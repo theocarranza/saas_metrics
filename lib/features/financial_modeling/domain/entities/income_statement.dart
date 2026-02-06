@@ -46,4 +46,30 @@ class IncomeStatement extends Equatable {
     ebitda,
     netIncome,
   ];
+
+  Map<String, dynamic> toMap() {
+    return {
+      'grossRevenue': grossRevenue,
+      'taxes': taxes,
+      'netRevenue': netRevenue,
+      'cogs': cogs,
+      'grossProfit': grossProfit,
+      'opEx': opEx,
+      'ebitda': ebitda,
+      'netIncome': netIncome,
+    };
+  }
+
+  factory IncomeStatement.fromMap(Map<String, dynamic> map) {
+    return IncomeStatement(
+      grossRevenue: map['grossRevenue']?.toDouble() ?? 0.0,
+      taxes: map['taxes']?.toDouble() ?? 0.0,
+      netRevenue: map['netRevenue']?.toDouble() ?? 0.0,
+      cogs: map['cogs']?.toDouble() ?? 0.0,
+      grossProfit: map['grossProfit']?.toDouble() ?? 0.0,
+      opEx: map['opEx']?.toDouble() ?? 0.0,
+      ebitda: map['ebitda']?.toDouble() ?? 0.0,
+      netIncome: map['netIncome']?.toDouble() ?? 0.0,
+    );
+  }
 }

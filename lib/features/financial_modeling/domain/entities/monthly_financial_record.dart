@@ -30,4 +30,24 @@ class MonthlyFinancialRecord extends Equatable {
     cashFlow,
     unitEconomics,
   ];
+
+  Map<String, dynamic> toMap() {
+    return {
+      'date': date.toIso8601String(),
+      'saasMetrics': saasMetrics.toMap(),
+      'incomeStatement': incomeStatement.toMap(),
+      'cashFlow': cashFlow.toMap(),
+      'unitEconomics': unitEconomics.toMap(),
+    };
+  }
+
+  factory MonthlyFinancialRecord.fromMap(Map<String, dynamic> map) {
+    return MonthlyFinancialRecord(
+      date: DateTime.parse(map['date']),
+      saasMetrics: SaaSMetrics.fromMap(map['saasMetrics']),
+      incomeStatement: IncomeStatement.fromMap(map['incomeStatement']),
+      cashFlow: CashFlow.fromMap(map['cashFlow']),
+      unitEconomics: UnitEconomics.fromMap(map['unitEconomics']),
+    );
+  }
 }
