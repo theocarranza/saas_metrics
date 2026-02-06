@@ -33,10 +33,11 @@ void main() {
     // We expect the 'No projections generated yet.' text to be visible in the body
     expect(find.text('No projections generated yet.'), findsOneWidget);
 
+    expect(find.byIcon(Icons.play_arrow), findsOneWidget);
     expect(
-      find.byIcon(Icons.play_arrow),
-      findsNothing,
-    ); // Play button removed as requested
+      find.text('Run Simulation'),
+      findsWidgets,
+    ); // BothAppBar and EmptyState
   });
 
   testWidgets('DashboardPage renders empty state message', (
