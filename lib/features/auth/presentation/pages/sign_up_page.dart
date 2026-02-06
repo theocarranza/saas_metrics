@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:saas_metrics/features/financial_modeling/presentation/pages/dashboard_page.dart';
+import 'package:go_router/go_router.dart';
+import 'package:saas_metrics/core/router/app_router.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -106,11 +107,9 @@ class _SignUpPageState extends State<SignUpPage> {
                         if (_formKey.currentState!.validate()) {
                           // TODO: Implement actual Sign Up logic
                           // For now, simulate success and go to Dashboard
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (_) => const DashboardPage(),
-                            ), // Assume DashboardPage is imported or similar
-                          );
+                          if (context.mounted) {
+                            context.go(AppRoutes.dashboard);
+                          }
                         }
                       },
                       style: FilledButton.styleFrom(
@@ -127,7 +126,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pop(); // Go back to login
+                        context.pop(); // Go back to login
                       },
                       child: Text(
                         'Already have an account? Sign In',

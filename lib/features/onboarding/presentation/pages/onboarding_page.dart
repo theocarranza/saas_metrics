@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:saas_metrics/features/auth/presentation/pages/login_page.dart';
+import 'package:go_router/go_router.dart';
+import 'package:saas_metrics/core/router/app_router.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -71,13 +72,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         children: [
           if (!isLastPage)
             TextButton(
-              onPressed: () {
-                _pageController.animateToPage(
-                  _slides.length - 1,
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeInOut,
-                );
-              },
+              onPressed: () => context.go(AppRoutes.login),
               child: Text(
                 'Skip',
                 style: theme.textTheme.labelLarge?.copyWith(
@@ -91,9 +86,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           FilledButton(
             onPressed: () {
               if (isLastPage) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                );
+                context.go(AppRoutes.login);
               } else {
                 _pageController.nextPage(
                   duration: const Duration(milliseconds: 400),

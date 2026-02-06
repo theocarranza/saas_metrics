@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:saas_metrics/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:saas_metrics/core/router/app_router.dart';
 import 'package:saas_metrics/features/auth/presentation/providers/auth_provider.dart';
-import 'package:saas_metrics/features/financial_modeling/presentation/pages/dashboard_page.dart';
-
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -65,10 +64,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ref.listen<AsyncValue<dynamic>>(authProvider, (previous, next) {
       next.whenData((token) {
         if (token != null && token.isValid) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const DashboardPage()),
-            (route) => false,
-          );
+          if (context.mounted) {
+            context.go(AppRoutes.dashboard);
+          }
         }
       });
     });
@@ -143,7 +141,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     const SizedBox(height: 16),
                     CheckboxListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: Text('Remember Me', style: theme.textTheme.bodyMedium),
+                      title: Text(
+                        'Remember Me',
+                        style: theme.textTheme.bodyMedium,
+                      ),
                       value: _rememberMe,
                       onChanged: (value) {
                         setState(() {
@@ -171,9 +172,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const SignUpPage()),
-                        );
+                        context.push(AppRoutes.signUp);
                       },
                       child: Text(
                         'Don\'t have an account? Sign Up',

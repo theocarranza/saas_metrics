@@ -97,7 +97,7 @@ class RevenueChart extends StatelessWidget {
             ),
           ),
           leftTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false), 
+            sideTitles: SideTitles(showTitles: false),
           ),
           topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
@@ -187,7 +187,7 @@ class RevenueChart extends StatelessWidget {
 
                   final record = records[index];
                   final dateLabel = DateFormat('MMM yyyy').format(record.date);
-                  
+
                   return LineTooltipItem(
                     '$dateLabel\n',
                     const TextStyle(
