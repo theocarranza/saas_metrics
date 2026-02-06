@@ -4,4 +4,10 @@ abstract class OnboardingRepository {
 
   /// Marks the onboarding flow as seen by the user.
   Future<void> markOnboardingAsSeen();
+
+  /// Returns true if the initial simulation has been run.
+  Future<bool> hasRunInitialSimulation();
+
+  /// Marks the initial simulation as run.
+  Future<void> markInitialSimulationAsRun();
 }

@@ -13,6 +13,18 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
   @override
   Future<void> markOnboardingAsSeen() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_onboardingKey, true);
+    await prefs.setBool('has_seen_onboarding', true);
+  }
+
+  @override
+  Future<bool> hasRunInitialSimulation() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('has_run_initial_simulation') ?? false;
+  }
+
+  @override
+  Future<void> markInitialSimulationAsRun() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_run_initial_simulation', true);
   }
 }
