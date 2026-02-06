@@ -4,10 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### Fixed
-- **Auth**: Login page now navigates to Dashboard after successful authentication.
-
 ### Added
+- **Navigation**: 
+  - Migrated entire application to `go_router` for declarative navigation.
+  - Implemented `RouterListenable` to synchronize router with `authProvider` state, ensuring stable routing on authentication changes.
+  - Refactored routes: Login is now the root path (`/`), and Onboarding is available at `/onboarding`.
+- **Dashboard**:
+  - Implemented manual adaptive layout with `NavigationRail` for desktop/tablet views.
+  - Polished the Sign Out button in the `NavigationRail` with expanded text support and refined alignment.
+
+### Fixed
+- **Navigation**: Fixed Sign Out routing to consistently redirect to the Login screen instead of Onboarding.
+- **Onboarding**: Fixed "Skip" button to correctly route to the Login page.
+
+### Removed
+- **Dashboard**: Removed non-functional "Settings" and "Simulation" buttons to focus on core metrics.
 - **Financial Modeling**:
   - Implemented Domain Entities: `SaaSMetrics`, `IncomeStatement`, `CashFlow`, `UnitEconomics`, `MonthlyFinancialRecord`, `FinancialScenario`.
   - Implemented Core Logic (Math Engine) in `GenerateFinancialProjections` use case.

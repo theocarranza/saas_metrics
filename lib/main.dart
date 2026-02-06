@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:saas_metrics/features/financial_modeling/presentation/pages/dashboard_page.dart';
-import 'package:saas_metrics/features/onboarding/presentation/pages/onboarding_page.dart';
-
-import 'package:saas_metrics/features/auth/presentation/providers/auth_provider.dart';
+import 'package:saas_metrics/core/router/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,9 +13,9 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
+    final router = ref.watch(appRouterProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'SaaS Metrics',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -37,17 +34,7 @@ class MainApp extends ConsumerWidget {
           backgroundColor: Colors.transparent,
         ),
       ),
-      home: authState.when(
-        data: (token) {
-          if (token != null && token.isValid) {
-            return const DashboardPage();
-          }
-          return const OnboardingPage();
-        },
-        loading: () =>
-            const Scaffold(body: Center(child: CircularProgressIndicator())),
-        error: (err, stack) => const OnboardingPage(),
-      ),
+      routerConfig: router,
     );
   }
 }
