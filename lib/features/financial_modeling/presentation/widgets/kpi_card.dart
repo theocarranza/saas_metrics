@@ -17,39 +17,69 @@ class KPICard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Card(
-      // M3 defaults handle elevation and shape, but we can override if needed
+      elevation: 2,
+      shadowColor: Colors.transparent, // Cleaner look
+      color: colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: color, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              colorScheme.surfaceContainerLow,
+              colorScheme.surfaceContainer,
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, color: color, size: 24),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface,
+                  // Optional: Add trend indicator here later
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    value,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

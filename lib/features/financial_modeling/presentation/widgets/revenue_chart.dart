@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:saas_metrics/features/financial_modeling/domain/entities/monthly_financial_record.dart';
 
 class RevenueChart extends StatelessWidget {
@@ -15,20 +16,39 @@ class RevenueChart extends StatelessWidget {
 
     return LineChart(
       LineChartData(
-        gridData: const FlGridData(show: true, drawVerticalLine: false),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: 1000,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: Colors.grey.withValues(alpha: 0.1),
+              strokeWidth: 1,
+            );
+          },
+        ),
         titlesData: FlTitlesData(
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
+              reservedSize: 32, // More space for rotated labels
               interval: 1,
               getTitlesWidget: (value, meta) {
                 final index = value.toInt();
                 if (index >= 0 && index < records.length) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
+                  final date = records[index].date;
+                  final monthName = DateFormat('MMM').format(date);
+
+                  return SideTitleWidget(
+                    meta: meta,
+                    angle: -0.5, // Rotated roughly 30 degrees
                     child: Text(
-                      'M${index + 1}',
-                      style: const TextStyle(fontSize: 10),
+                      monthName,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey,
+                      ),
                     ),
                   );
                 }
@@ -37,7 +57,7 @@ class RevenueChart extends StatelessWidget {
             ),
           ),
           leftTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+            sideTitles: SideTitles(showTitles: false), 
           ),
           topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
@@ -56,15 +76,40 @@ class RevenueChart extends StatelessWidget {
               );
             }).toList(),
             isCurved: true,
-            color: Colors.blueAccent,
-            barWidth: 3,
+            color: Theme.of(context).primaryColor,
+            barWidth: 4,
+            isStrokeCapRound: true,
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blueAccent.withValues(alpha: 0.1),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                  Theme.of(context).primaryColor.withValues(alpha: 0.0),
+                ],
+              ),
             ),
           ),
         ],
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (touchedSpot) => Colors.black87,
+            getTooltipItems: (touchedSpots) {
+              return touchedSpots.map((LineBarSpot touchedSpot) {
+                return LineTooltipItem(
+                  touchedSpot.y.toStringAsFixed(0),
+                  const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }).toList();
+            },
+          ),
+          handleBuiltInTouches: true,
+        ),
       ),
     );
   }
