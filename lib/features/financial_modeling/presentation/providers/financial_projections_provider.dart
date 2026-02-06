@@ -9,6 +9,14 @@ import 'package:saas_metrics/features/auth/presentation/providers/auth_provider.
 part 'financial_projections_provider.g.dart';
 
 @riverpod
+class SimulationProgress extends _$SimulationProgress {
+  @override
+  double build() => 0.0;
+
+  void update(double progress) => state = progress;
+}
+
+@riverpod
 class FinancialProjectionsNotifier extends _$FinancialProjectionsNotifier {
   @override
   FutureOr<List<MonthlyFinancialRecord>> build() async {
@@ -44,9 +52,16 @@ class FinancialProjectionsNotifier extends _$FinancialProjectionsNotifier {
 
   Future<void> generate(FinancialScenario scenario) async {
     state = const AsyncValue.loading();
+    ref.read(simulationProgressProvider.notifier).update(0.0);
+
     state = await AsyncValue.guard(() async {
       final useCase = GenerateFinancialProjections();
-      final result = await useCase(scenario);
+      final result = await useCase(
+        scenario,
+        onProgress: (progress) {
+          ref.read(simulationProgressProvider.notifier).update(progress);
+        },
+      );
 
       // Persist data
       final prefs = await SharedPreferences.getInstance();

@@ -7,10 +7,13 @@ import '../entities/unit_economics.dart';
 
 /// Use Case for generating financial projections based on a scenario.
 class GenerateFinancialProjections {
-  Future<List<MonthlyFinancialRecord>> call(FinancialScenario scenario) async {
+  Future<List<MonthlyFinancialRecord>> call(
+    FinancialScenario scenario, {
+    void Function(double progress)? onProgress,
+  }) async {
     final records = <MonthlyFinancialRecord>[];
+    final totalMonths = scenario.durationMonths;
 
-    // Extract parameters with defaults
     final startingCustomers =
         (scenario.parameters['starting_customers'] as num?)?.toInt() ?? 0;
     final newCustomersMonthly =
@@ -18,9 +21,7 @@ class GenerateFinancialProjections {
     final arpa = (scenario.parameters['arpa'] as num?)?.toDouble() ?? 0.0;
     final churnRate =
         (scenario.parameters['churn_rate'] as num?)?.toDouble() ?? 0.0;
-    // final expansionRate = (scenario.parameters['expansion_rate'] as num?)?.toDouble() ?? 0.0;
 
-    // P&L Parameters
     final costPerUser =
         (scenario.parameters['cost_per_user'] as num?)?.toDouble() ?? 0.0;
     final fixedCogs =
@@ -30,7 +31,6 @@ class GenerateFinancialProjections {
     final taxRate =
         (scenario.parameters['tax_rate'] as num?)?.toDouble() ?? 0.0;
 
-    // Unit Eco & Cash Flow Parameters
     final marketingSpend =
         (scenario.parameters['marketing_spend'] as num?)?.toDouble() ?? 0.0;
     final startingCash =
@@ -40,7 +40,13 @@ class GenerateFinancialProjections {
     int currentActiveCustomers = startingCustomers;
     double currentCashBalance = startingCash;
 
-    for (int i = 0; i < scenario.durationMonths; i++) {
+    for (int i = 0; i < totalMonths; i++) {
+      // Artificial delay to allow deterministic loading feedback
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      final progress = (i + 1) / totalMonths;
+      onProgress?.call(progress);
+
       final date = DateTime(
         scenario.startDate.year,
         scenario.startDate.month + i,
@@ -122,7 +128,7 @@ class GenerateFinancialProjections {
       final paybackPeriod = (arpa * grossMarginRatio) > 0
           ? cac / (arpa * grossMarginRatio)
           : 0.0;
-      final magicNumber = 0.0;
+      const magicNumber = 0.0;
 
       final unitEconomics = UnitEconomics(
         cac: cac,
