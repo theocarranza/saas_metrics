@@ -12,6 +12,8 @@ import '../widgets/kpi_card.dart';
 import '../widgets/revenue_chart.dart';
 import '../widgets/simulation_dialog.dart';
 
+import '../widgets/saved_scenarios_dialog.dart';
+
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
 
@@ -29,6 +31,31 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final isDesktop = Breakpoints.mediumAndUp.isActive(context);
 
     return Scaffold(
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'saved_scenarios',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => const SavedScenariosDialog(),
+              );
+            },
+            icon: const Icon(Icons.folder_open),
+            label: const Text('Saved'),
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+            foregroundColor: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(width: 16),
+          FloatingActionButton.extended(
+            heroTag: 'new_simulation',
+            onPressed: () => _showSimulationDialog(context),
+            icon: const Icon(Icons.play_arrow),
+            label: const Text('New Simulation'),
+          ),
+        ],
+      ),
       appBar: AppBar(
         title: const Text(
           'SaaS Financial Dashboard',

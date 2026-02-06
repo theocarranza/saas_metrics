@@ -18,4 +18,40 @@ class FinancialScenario extends Equatable {
 
   @override
   List<Object> get props => [id, name, startDate, durationMonths, parameters];
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'startDate': startDate.toIso8601String(),
+      'durationMonths': durationMonths,
+      'parameters': parameters,
+    };
+  }
+
+  factory FinancialScenario.fromMap(Map<String, dynamic> map) {
+    return FinancialScenario(
+      id: map['id'] ?? '',
+      name: map['name'] ?? '',
+      startDate: DateTime.tryParse(map['startDate'] ?? '') ?? DateTime.now(),
+      durationMonths: map['durationMonths']?.toInt() ?? 12,
+      parameters: Map<String, dynamic>.from(map['parameters'] ?? {}),
+    );
+  }
+
+  FinancialScenario copyWith({
+    String? id,
+    String? name,
+    DateTime? startDate,
+    int? durationMonths,
+    Map<String, dynamic>? parameters,
+  }) {
+    return FinancialScenario(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      startDate: startDate ?? this.startDate,
+      durationMonths: durationMonths ?? this.durationMonths,
+      parameters: parameters ?? this.parameters,
+    );
+  }
 }
