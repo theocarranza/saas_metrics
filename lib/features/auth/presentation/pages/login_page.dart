@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:saas_metrics/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:saas_metrics/features/auth/presentation/providers/auth_provider.dart';
+import 'package:saas_metrics/features/financial_modeling/presentation/pages/dashboard_page.dart';
 
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -59,6 +60,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authState = ref.watch(authProvider);
+
+    // Listen for auth state changes and navigate on successful login
+    ref.listen<AsyncValue<dynamic>>(authProvider, (previous, next) {
+      next.whenData((token) {
+        if (token != null && token.isValid) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const DashboardPage()),
+            (route) => false,
+          );
+        }
+      });
+    });
 
     return Scaffold(
       appBar: AppBar(
