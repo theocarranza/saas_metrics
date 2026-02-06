@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Auth**: Login page now navigates to Dashboard after successful authentication.
+
 ### Added
 - **Financial Modeling**:
   - Implemented Domain Entities: `SaaSMetrics`, `IncomeStatement`, `CashFlow`, `UnitEconomics`, `MonthlyFinancialRecord`, `FinancialScenario`.
