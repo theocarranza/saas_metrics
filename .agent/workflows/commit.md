@@ -21,11 +21,14 @@ git add <files>
 
 Run `git diff --cached` and evaluate:
 
-1. **Atomicity Check**: Are we touching unrelated concerns (UI + DB + Logic) in one commit?
+1. **Documentation Check**:
+   - 🛑 **STOP** if `CHANGELOG.md` is not modified. (Mandatory for ALL commits).
+   - ⚠️ **Check** if `README.md` needs updates (for feature/arch changes).
+2. **Atomicity Check**: Are we touching unrelated concerns (UI + DB + Logic) in one commit?
    - ⚠️ If YES → split into multiple commits.
-2. **Determine Type**: `feat`, `fix`, `chore`, `refactor`, `style`, `test`, `docs`, `perf`, `ci`, `build`.
-3. **Determine Scope**: e.g., `(auth)`, `(ui)`, `(router)`, `(guards)`.
-4. **Draft Message** in Conventional Commit format:
+3. **Determine Type**: `feat`, `fix`, `chore`, `refactor`, `style`, `test`, `docs`, `perf`, `ci`, `build`.
+4. **Determine Scope**: e.g., `(auth)`, `(ui)`, `(router)`, `(guards)`.
+5. **Draft Message** in Conventional Commit format:
 
    ```
    <type>(<scope>): <subject in imperative mood>
