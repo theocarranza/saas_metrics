@@ -20,9 +20,10 @@ class FinancialRepositoryImpl implements FinancialRepository {
       return jsonList
           .map((e) => FinancialScenario.fromMap(e as Map<String, dynamic>))
           .toList();
+    } on FormatException {
+      rethrow;
     } catch (e) {
-      // In case of corruption, return empty or handle error
-      return [];
+      throw FormatException('Failed to decode saved scenarios', e);
     }
   }
 
