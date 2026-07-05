@@ -68,5 +68,32 @@ void main() {
       // Assert
       expect(result, isEmpty);
     });
+
+    test('should throw when stored data is corrupted', () async {
+      SharedPreferences.setMockInitialValues({
+        'financial_scenarios': 'not-valid-json',
+      });
+
+      await expectLater(
+        repository.getAllScenarios(),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('should not overwrite stored data when read fails during save', () async {
+      SharedPreferences.setMockInitialValues({
+        'financial_scenarios': '[{"id":"1","name":"Existing"}]',
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('financial_scenarios', 'not-valid-json');
+
+      await expectLater(
+        repository.saveScenario(tScenario),
+        throwsA(isA<FormatException>()),
+      );
+
+      expect(prefs.getString('financial_scenarios'), 'not-valid-json');
+    });
   });
 }
